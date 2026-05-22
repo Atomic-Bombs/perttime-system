@@ -82,8 +82,15 @@
                     <li class="py-4">
                         <div class="flex items-center justify-between mb-1">
                             <span class="text-sm font-semibold text-gray-800">{{ record.date }}</span>
-                            <a href="/edit_record/{{ record.id }}"
-                                class="text-xs text-blue-600 hover:underline">編集</a>
+                            <div class="flex gap-3">
+                                <a href="/edit_record/{{ record.id }}"
+                                    class="text-xs text-blue-600 hover:underline">編集</a>
+                                <form action="/delete_record/{{ record.id }}" method="POST"
+                                    onsubmit="return confirm('この記録を削除しますか？')">
+                                    <button type="submit"
+                                        class="text-xs text-red-500 hover:text-red-700">削除</button>
+                                </form>
+                            </div>
                         </div>
                         <p class="text-sm text-gray-600">担当者: {{ record.instructor }}</p>
                         <p class="text-sm text-gray-700 mt-1">今週やったこと: {{ record.deliverables }}</p>

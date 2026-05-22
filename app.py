@@ -100,6 +100,28 @@ def edit_record(record_id):
             flash('保存が完了しました！')
             return redirect(url_for('student_detail', student_id=record.student_id))
     return render_template('edit.html', record=record, error=error, success=success)
+
+# 生徒削除
+@app.route('/delete_student/<int:student_id>', methods=['POST'])
+def delete_student(student_id):
+    student = Student.query.get_or_404(student_id)
+    Record.query.filter_by(student_id=student_id).delete()
+    db.session.delete(student)
+    db.session.commit()
+    flash('生徒を削除しました', 'success')
+    return redirect(url_for('index'))
+
+# 面談記録削除
+@app.route('/delete_record/<int:record_id>', methods=['POST'])
+def delete_record(record_id):
+    record = Record.query.get_or_404(record_id)
+    student_id = record.student_id
+    db.session.delete(record)
+    db.session.commit()
+    flash('記録を削除しました', 'success')
+    return redirect(url_for('student_detail', student_id=student_id))
+
+
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
