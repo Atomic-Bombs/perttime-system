@@ -19,7 +19,6 @@ class Record(db.Model):
     instructor = db.Column(db.String(100))
     deliverables = db.Column(db.Text)        # 追加
     assignment = db.Column(db.Text)          # 追加
-    content = db.Column(db.Text, nullable=False)
     memo = db.Column(db.Text)
     next_meeting_date = db.Column(db.String(20))
     next_instructor = db.Column(db.String(100))
@@ -54,7 +53,6 @@ def add_record(student_id):
         instructor=request.form['instructor'],
         deliverables=request.form['deliverables'],
         assignment=request.form['assignment'],
-        content=request.form['content'],
         memo=request.form['memo'],
         next_meeting_date=request.form['next_meeting_date'],
         next_instructor=request.form['next_instructor'],
@@ -73,7 +71,6 @@ def edit_record(record_id):
         record.instructor = request.form['instructor']
         record.deliverables = request.form['deliverables']
         record.assignment = request.form['assignment']
-        record.content = request.form['content']
         record.memo = request.form['memo']
         record.next_meeting_date = request.form['next_meeting_date']
         record.next_instructor = request.form['next_instructor']
