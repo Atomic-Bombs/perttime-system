@@ -6,8 +6,20 @@
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-50 min-h-screen">
-    <header class="bg-blue-800 text-white px-6 py-4 shadow">
-        <h1 class="text-xl font-semibold">面談記録アプリ</h1>
+  <header class="bg-blue-800 text-white px-6 py-4 shadow">
+        <div class="flex items-center justify-between max-w-5xl mx-auto">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-xs font-semibold">
+                    {{ current_user.code[:2].upper() }}
+                </div>
+                <span class="text-sm text-blue-200">{{ current_user.code }}</span>
+                {% if current_user.is_admin %}
+                <a href="/admin" class="text-sm text-blue-200 hover:text-white ml-2">管理者画面</a>
+                {% endif %}
+            </div>
+            <h1 class="text-xl font-semibold absolute left-1/2 transform -translate-x-1/2">面談記録アプリ</h1>
+            <a href="/logout" class="text-sm bg-white text-blue-800 px-3 py-1 rounded-lg hover:bg-blue-50 transition font-medium">ログアウト</a>
+        </div>
     </header>
 
     <main class="max-w-2xl mx-auto px-4 py-8">
