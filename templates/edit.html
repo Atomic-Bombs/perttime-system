@@ -9,10 +9,12 @@
   <header class="bg-blue-800 text-white px-6 py-4 shadow">
         <div class="flex items-center justify-between max-w-5xl mx-auto">
             <div class="flex items-center gap-3">
-                <div class="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-xs font-semibold">
-                    {{ current_user.code[:2].upper() }}
-                </div>
-                <span class="text-sm text-blue-200">{{ current_user.code }}</span>
+                <a href="/change_password" class="flex items-center gap-2 hover:opacity-80">
+                    <div class="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-xs font-semibold">
+                        {{ current_user.code[:2].upper() }}
+                    </div>
+                    <span class="text-sm text-blue-200">{{ current_user.code }}</span>
+                </a>
                 {% if current_user.is_admin %}
                 <a href="/admin" class="text-sm text-blue-200 hover:text-white ml-2">管理者画面</a>
                 {% endif %}

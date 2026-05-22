@@ -227,6 +227,28 @@ def toggle_admin(user_id):
     flash('権限を変更しました', 'success')
     return redirect(url_for('admin'))
 
+# パスワード変更
+@app.route('/change_password', methods=['GET', 'POST'])
+@login_required
+def change_password():
+    error = None
+    if request.method == 'POST':
+        current_password = request.form['current_password']
+        new_password = request.form['new_password']
+        confirm_password = request.form['confirm_password']
+        if not current_user.check_password(current_password):
+            error = '現在のパスワードが違います'
+        elif new_password != confirm_password:
+            error = '新しいパスワードが一致しません'
+        elif current_user.check_password(new_password):
+            error = '現在と同じパスワードは使用できません'
+        else:
+            current_user.set_password(new_password)
+            db.session.commit()
+            flash('パスワードを変更しました', 'success')
+            return redirect(url_for('index'))
+    return render_template('change_password.html', error=error)
+
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
