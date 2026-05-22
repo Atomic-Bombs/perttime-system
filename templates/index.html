@@ -42,7 +42,8 @@
                         {{ student.name }}
                     </a>
                     <form action="/delete_student/{{ student.id }}" method="POST"
-                        onsubmit="return confirm('{{ student.name }}を削除しますか？')">
+                        onsubmit="return confirm('{{ student.name }}を削除しますか？')"
+                        style="margin: 0; padding: 0;">
                         <button type="submit"
                             class="text-xs text-red-500 hover:text-red-700">
                             削除
