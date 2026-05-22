@@ -1,8 +1,10 @@
 from flask import Flask, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
+from flask import Flask, render_template, request, redirect, url_for, flash
 
 app = Flask(__name__)
+app.secret_key = 'perttime-secret-key'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///mendan.db'
 db = SQLAlchemy(app)
 
@@ -37,46 +39,67 @@ def add_student():
     student = Student(name=name)
     db.session.add(student)
     db.session.commit()
+    flash('生徒を保存しました！')
     return redirect(url_for('index'))
 
 # 面談記録一覧
 @app.route('/student/<int:student_id>')
 def student_detail(student_id):
     student = Student.query.get_or_404(student_id)
-    return render_template('detail.html', student=student)
+    return render_template('detail.html', student=student, error=None, form_data={})
 
 # 面談記録追加
-@app.route('/add_record/<int:student_id>', methods=['POST'])
+@app.route('/add_record/<int:student_id>', methods=['GET', 'POST'])
 def add_record(student_id):
-    record = Record(
-        date=request.form['date'],
-        instructor=request.form['instructor'],
-        deliverables=request.form['deliverables'],
-        assignment=request.form['assignment'],
-        memo=request.form['memo'],
-        next_meeting_date=request.form['next_meeting_date'],
-        next_instructor=request.form['next_instructor'],
-        student_id=student_id
-    )
-    db.session.add(record)
-    db.session.commit()
-    return redirect(url_for('student_detail', student_id=student_id))
+    student = Student.query.get_or_404(student_id)
+    error = None
+    form_data = {}
+    if request.method == 'POST':
+        form_data = request.form
+        date_val = request.form['date']
+        next_meeting_date = request.form['next_meeting_date']
+        if next_meeting_date and next_meeting_date <= date_val:
+            error = '次回面談日は面談日より後の日付にしてください'
+        else:
+            record = Record(
+                date=date_val,
+                instructor=request.form['instructor'],
+                deliverables=request.form['deliverables'],
+                assignment=request.form['assignment'],
+                memo=request.form['memo'],
+                next_meeting_date=next_meeting_date,
+                next_instructor=request.form['next_instructor'],
+                student_id=student_id
+            )
+            db.session.add(record)
+            db.session.commit()
+            flash('記録を保存しました！', 'success')
+            return redirect(url_for('student_detail', student_id=student_id))
+    return render_template('detail.html', student=student, error=error, form_data=form_data)
 
 # 面談記録の編集
 @app.route('/edit_record/<int:record_id>', methods=['GET', 'POST'])
 def edit_record(record_id):
     record = Record.query.get_or_404(record_id)
+    error = None
+    success = None
     if request.method == 'POST':
-        record.date = request.form['date']
-        record.instructor = request.form['instructor']
-        record.deliverables = request.form['deliverables']
-        record.assignment = request.form['assignment']
-        record.memo = request.form['memo']
-        record.next_meeting_date = request.form['next_meeting_date']
-        record.next_instructor = request.form['next_instructor']
-        db.session.commit()
-        return redirect(url_for('student_detail', student_id=record.student_id))
-    return render_template('edit.html', record=record)
+        date = request.form['date']
+        next_meeting_date = request.form['next_meeting_date']
+        if next_meeting_date and next_meeting_date <= date:
+            error = '次回面談日は面談日より後の日付にしてください'
+        else:
+            record.date = date
+            record.instructor = request.form['instructor']
+            record.deliverables = request.form['deliverables']
+            record.assignment = request.form['assignment']
+            record.memo = request.form['memo']
+            record.next_meeting_date = next_meeting_date
+            record.next_instructor = request.form['next_instructor']
+            db.session.commit()
+            flash('保存が完了しました！')
+            return redirect(url_for('student_detail', student_id=record.student_id))
+    return render_template('edit.html', record=record, error=error, success=success)
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()

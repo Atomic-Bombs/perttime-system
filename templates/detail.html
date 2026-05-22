@@ -12,6 +12,20 @@
 
     <main class="max-w-2xl mx-auto px-4 py-8">
         <a href="/" class="text-blue-600 text-sm hover:underline">← 生徒一覧に戻る</a>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+            <div class="{% if category == 'error' %}bg-red-100 text-red-700 border border-red-300{% else %}bg-green-100 text-green-700 border border-green-300{% endif %} rounded-lg px-4 py-3 mb-4 text-sm">
+                {{ message }}
+            </div>
+            {% endfor %}
+        {% endif %}
+        {% endwith %}
+        {% if error %}
+        <div class="bg-red-100 text-red-700 border border-red-300 rounded-lg px-4 py-3 mb-4 text-sm">
+            {{ error }}
+        </div>
+        {% endif %}
 
         <h2 class="text-2xl font-semibold text-gray-800 mt-4 mb-6">{{ student.name }}の面談記録</h2>
 
@@ -20,37 +34,37 @@
             <form action="/add_record/{{ student.id }}" method="POST" class="space-y-4">
                 <div>
                     <label class="block text-sm text-gray-600 mb-1">日付</label>
-                    <input type="date" name="date" required
+                    <input type="date" name="date" required value="{{ form_data.get('date', '') }}"
                         class="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
                 <div>
                     <label class="block text-sm text-gray-600 mb-1">担当者</label>
-                    <input type="text" name="instructor" placeholder="担当者名"
+                    <input type="text" name="instructor" placeholder="担当者名" required value="{{ form_data.get('instructor', '') }}"
                         class="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
                  <div>
                     <label class="block text-sm text-gray-600 mb-1">今週やったこと</label>
                     <textarea name="deliverables" rows="4" required
-                        class="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                        class="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">{{ form_data.get('deliverables', '') }}</textarea>
                 </div>
                 <div>
                         <label class="block text-sm text-gray-600 mb-1">来週までの課題</label>
                         <textarea name="assignment" rows="4" required
-                            class="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                            class="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">{{ form_data.get('assignment', '') }}</textarea>
                 </div>
                 <div>
                     <label class="block text-sm text-gray-600 mb-1">メモ</label>
                     <textarea name="memo" rows="2" placeholder="メモ"
-                        class="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                        class="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">{{ form_data.get('memo', '') }}</textarea>
                 </div>
                 <div>
                     <label class="block text-sm text-gray-600 mb-1">次回面談日</label>
-                    <input type="date" name="next_meeting_date"
+                    <input type="date" name="next_meeting_date" required value="{{ form_data.get('next_meeting_date', '') }}"
                         class="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
                 <div>
                     <label class="block text-sm text-gray-600 mb-1">次回担当者</label>
-                    <input type="text" name="next_instructor" placeholder="次回担当者名"
+                    <input type="text" name="next_instructor" placeholder="次回担当者名" required value="{{ form_data.get('next_instructor', '') }}"
                         class="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
                 <button type="submit"

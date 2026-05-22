@@ -12,6 +12,15 @@
 
     <main class="max-w-2xl mx-auto px-4 py-8">
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+            {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                <div class="bg-green-100 text-green-700 border border-green-300 rounded-lg px-4 py-3 mb-4 text-sm">
+                    {{ message }}
+                </div>
+                {% endfor %}
+            {% endif %}
+            {% endwith %}
             <h2 class="text-lg font-medium text-gray-700 mb-4">生徒を追加</h2>
             <form action="/add_student" method="POST" class="flex gap-3">
                 <input type="text" name="name" placeholder="生徒の名前" required
