@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>面談記録を編集</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <header class="bg-blue-800 text-white px-6 py-4 shadow">
+        <h1 class="text-xl font-semibold">面談記録アプリ</h1>
+    </header>
+
+    <main class="max-w-2xl mx-auto px-4 py-8">
+        <a href="/student/{{ record.student_id }}" class="text-blue-600 text-sm hover:underline">← 戻る</a>
+
+        <h2 class="text-2xl font-semibold text-gray-800 mt-4 mb-6">面談記録を編集</h2>
+
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <form action="/edit_record/{{ record.id }}" method="POST" class="space-y-4">
+                <div>
+                    <label class="block text-sm text-gray-600 mb-1">日付</label>
+                    <input type="date" name="date" value="{{ record.date }}" required
+                        class="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm text-gray-600 mb-1">担当者</label>
+                    <input type="text" name="instructor" value="{{ record.instructor }}" placeholder="担当者名"
+                        class="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm text-gray-600 mb-1">今週やったこと</label>
+                    <textarea name="deliverables" rows="4" required
+                        class="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">{{ record.deliverables }}</textarea>
+                </div>
+                <div>
+                    <label class="block text-sm text-gray-600 mb-1">来週までの課題</label>
+                    <textarea name="assignment" rows="4" required
+                        class="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">{{ record.assignment }}</textarea>
+                </div>
+                <div>
+                    <label class="block text-sm text-gray-600 mb-1">メモ</label>
+                    <textarea name="memo" rows="2"
+                        class="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">{{ record.memo }}</textarea>
+                </div>
+                <div>
+                    <label class="block text-sm text-gray-600 mb-1">次回面談日</label>
+                    <input type="date" name="next_meeting_date" value="{{ record.next_meeting_date }}"
+                        class="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm text-gray-600 mb-1">次回担当者</label>
+                    <input type="text" name="next_instructor" value="{{ record.next_instructor }}" placeholder="次回担当者名"
+                        class="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <button type="submit"
+                    class="w-full bg-blue-700 text-white py-2 rounded-lg text-sm hover:bg-blue-800 transition">
+                    保存
+                </button>
+            </form>
+        </div>
+    </main>
+</body>
+</html>
