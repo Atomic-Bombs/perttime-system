@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>新規面談記録</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <header class="bg-blue-800 text-white px-6 py-4 shadow">
+        <div class="flex items-center justify-between max-w-5xl mx-auto">
+            <div class="flex items-center gap-3">
+                <a href="/change_password" class="flex items-center gap-2 hover:opacity-80">
+                    <div class="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-xs font-semibold">
+                        {{ current_user.code[:2].upper() }}
+                    </div>
+                    <span class="text-sm text-blue-200">{{ current_user.code }}</span>
+                </a>
+                {% if current_user.is_admin %}
+                <a href="/admin" class="text-sm text-blue-200 hover:text-white ml-2">管理者画面</a>
+                {% endif %}
+            </div>
+            <h1 class="text-xl font-semibold absolute left-1/2 transform -translate-x-1/2">面談記録アプリ</h1>
+            <a href="/logout" class="text-sm bg-white text-blue-800 px-3 py-1 rounded-lg hover:bg-blue-50 transition font-medium">ログアウト</a>
+        </div>
+    </header>
+
+    <main class="max-w-5xl mx-auto px-4 py-8">
+        <a href="/student/{{ student.id }}" class="text-blue-600 text-sm hover:underline">← 面談記録に戻る</a>
+
+        <h2 class="text-2xl font-semibold text-gray-800 mt-4 mb-6">{{ student.name }}の新規面談記録</h2>
+
+        {% if error %}
+        <div class="bg-red-100 text-red-700 border border-red-300 rounded-lg px-4 py-3 mb-4 text-sm">
+            {{ error }}
+        </div>
+        {% endif %}
+
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <form action="/add_record/{{ student.id }}" method="POST" class="space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm text-gray-600 mb-1">日付</label>
+                        <input type="date" name="date" required value="{{ form_data.get('date', '') }}"
+                            class="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm text-gray-600 mb-1">担当者</label>
+                        <input type="text" name="instructor" placeholder="担当者名" required value="{{ form_data.get('instructor', '') }}"
+                            class="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm text-gray-600 mb-1">次回面談日</label>
+                        <input type="date" name="next_meeting_date" required value="{{ form_data.get('next_meeting_date', '') }}"
+                            class="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm text-gray-600 mb-1">次回担当者</label>
+                        <input type="text" name="next_instructor" placeholder="次回担当者名" required value="{{ form_data.get('next_instructor', '') }}"
+                            class="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm text-gray-600 mb-1">今週やったこと</label>
+                    <textarea name="deliverables" rows="4" required
+                        class="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">{{ form_data.get('deliverables', '') }}</textarea>
+                </div>
+                <div>
+                    <label class="block text-sm text-gray-600 mb-1">来週までの課題</label>
+                    <textarea name="assignment" rows="4" required
+                        class="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">{{ form_data.get('assignment', '') }}</textarea>
+                </div>
+                <div>
+                    <label class="block text-sm text-gray-600 mb-1">メモ</label>
+                    <textarea name="memo" rows="2" placeholder="メモ（任意）"
+                        class="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">{{ form_data.get('memo', '') }}</textarea>
+                </div>
+                <button type="submit"
+                    class="w-full bg-blue-700 text-white py-2 rounded-lg text-sm hover:bg-blue-800 transition">
+                    記録を保存
+                </button>
+            </form>
+        </div>
+    </main>
+</body>
+</html>

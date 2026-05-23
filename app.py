@@ -89,7 +89,8 @@ def add_student():
 @login_required
 def student_detail(student_id):
     student = Student.query.get_or_404(student_id)
-    return render_template('detail.html', student=student, error=None, form_data={})
+    records = Record.query.filter_by(student_id=student_id).order_by(Record.date.desc()).all()
+    return render_template('detail.html', student=student, records=records, error=None, form_data={})
 
 # 面談記録追加
 @app.route('/add_record/<int:student_id>', methods=['GET', 'POST'])
@@ -119,7 +120,7 @@ def add_record(student_id):
             db.session.commit()
             flash('記録を保存しました！', 'success')
             return redirect(url_for('student_detail', student_id=student_id))
-    return render_template('detail.html', student=student, error=error, form_data=form_data)
+    return render_template('add_record.html', student=student, error=error, form_data=form_data)
 
 # 面談記録の編集
 @app.route('/edit_record/<int:record_id>', methods=['GET', 'POST'])
