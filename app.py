@@ -1,8 +1,11 @@
+from flask import Flask, render_template, request, redirect, url_for, flash, session
+
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
+
 
 app = Flask(__name__)
 app.secret_key = 'perttime-secret-key'
@@ -10,6 +13,8 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///mendan.db'
 db = SQLAlchemy(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
+from datetime import timedelta
+app.permanent_session_lifetime = timedelta(minutes=30)
 
 # ユーザーテーブル
 class User(UserMixin, db.Model):
@@ -55,6 +60,7 @@ def login():
         user = User.query.filter_by(code=code).first()
         if user and user.check_password(password):
             login_user(user)
+            session.permanent = True
             return redirect(url_for('index'))
         flash('バイトコードまたはパスワードが違います', 'error')
     return render_template('login.html')
