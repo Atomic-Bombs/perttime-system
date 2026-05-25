@@ -5,6 +5,7 @@
     <title>面談記録アプリ</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
+
 <body class="bg-gray-50 min-h-screen">
     <header class="bg-blue-800 text-white px-6 py-4 shadow">
         <div class="flex items-center justify-between max-w-5xl mx-auto">
@@ -20,12 +21,19 @@
                 {% endif %}
             </div>
             <h1 class="text-xl font-semibold absolute left-1/2 transform -translate-x-1/2">面談記録アプリ</h1>
-            <a href="/logout" class="text-sm bg-white text-blue-800 px-3 py-1 rounded-lg hover:bg-blue-50 transition font-medium">ログアウト</a>
+            <div class="flex items-center gap-3">
+                <span id="session-timer" class="text-xs text-blue-200"></span>
+                <a href="/logout" class="text-sm bg-white text-blue-800 px-3 py-1 rounded-lg hover:bg-blue-50 transition font-medium">ログアウト</a>
+            </div>
         </div>
     </header>
 
-    <main class="max-w-2xl mx-auto px-4 py-8">
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+    <main class="max-w-5xl mx-auto px-4 py-8">
+        <a href="/change_password" class="text-blue-600 text-sm hover:underline">パスワード変更</a>
+        <h2 class="text-2xl font-semibold text-gray-800 mt-4 mb-6 text-center">生徒一覧</h2>
+
+
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6 max-w-2xl mx-auto">
             {% with messages = get_flashed_messages() %}
             {% if messages %}
                 {% for message in messages %}
@@ -46,7 +54,7 @@
             </form>
         </div>
 
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 max-w-2xl mx-auto">
             <h2 class="text-lg font-medium text-gray-700 mb-4">生徒一覧</h2>
             <ul class="divide-y divide-gray-100">
                 {% for student in students %}
@@ -68,5 +76,20 @@
             </ul>
         </div>
     </main>
+    <script>
+        let timeLeft = 30 * 60;
+        const timer = document.getElementById('session-timer');
+        function updateTimer() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            timer.textContent = `セッション残り ${minutes}:${seconds.toString().padStart(2, '0')}`;
+            if (timeLeft <= 0) {
+                window.location.href = '/logout';
+            }
+            timeLeft--;
+        }
+        updateTimer();
+        setInterval(updateTimer, 1000);
+    </script>
 </body>
 </html>
