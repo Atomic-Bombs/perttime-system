@@ -15,7 +15,7 @@ login_manager.login_view = 'login'
 login_manager.login_message = "セッションが切れました。再度ログインしてください。"
 login_manager.login_message_category = "error"
 
-app.permanent_session_lifetime = timedelta(minutes=1)
+app.permanent_session_lifetime = timedelta(minutes=30)
 
 # ユーザーテーブル
 class User(UserMixin, db.Model):
