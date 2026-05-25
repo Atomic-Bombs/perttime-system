@@ -13,6 +13,10 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///mendan.db'
 db = SQLAlchemy(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
+login_manager.login_message = "セッションが切れました。再度ログインしてください。"
+login_manager.login_message_category = "error"
+
+
 from datetime import timedelta
 app.permanent_session_lifetime = timedelta(minutes=30)
 
@@ -62,14 +66,22 @@ def login():
             login_user(user)
             session.permanent = True
             return redirect(url_for('index'))
-        flash('バイトコードまたはパスワードが違います', 'error')
+        flash('ユーザー名またはパスワードが違います', 'error')
+    
+    #reason = request.args.get('reason')
+    #message = 'セッションが終了しました。再度ログインしてください。' if reason == 'timeout' else None
+    #return render_template('login.html', message=message)
     return render_template('login.html')
 
 # ログアウト
 @app.route('/logout')
-@login_required
+#@login_required
 def logout():
     logout_user()
+    reason = request.args.get('reason')
+    if reason == 'timeout':
+        flash('一定時間操作がなかったため、セッションが切れました。再度ログインしてください。', 'error')
+        #return redirect(url_for('login', reason='timeout'))
     return redirect(url_for('login'))
 
 # トップページ（生徒一覧）
