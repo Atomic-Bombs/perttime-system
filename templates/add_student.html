@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>生徒を新規追加 | 面談記録アプリ</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-50 min-h-screen">
+    <header class="bg-blue-800 text-white px-6 py-4 shadow">
+        <div class="flex items-center justify-between max-w-5xl mx-auto">
+            <div class="flex items-center gap-3">
+                <a href="/change_password" class="flex items-center gap-2 hover:opacity-80">
+                    <div class="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-xs font-semibold">
+                        {{ current_user.code[:2].upper() }}
+                    </div>
+                    <span class="text-sm text-blue-200">{{ current_user.code }}</span>
+                </a>
+            </div>
+            <h1 class="text-xl font-semibold absolute left-1/2 transform -translate-x-1/2">面談記録アプリ</h1>
+            <div class="flex items-center gap-3">
+                <span id="session-timer" class="text-xs text-blue-200"></span>
+                <a href="/logout" class="text-sm bg-white text-blue-800 px-3 py-1 rounded-lg hover:bg-blue-50 transition font-medium">ログアウト</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-2xl mx-auto px-4 py-8">
+        <a href="/" class="text-blue-600 text-sm hover:underline mb-4 inline-block">← 生徒一覧に戻る</a>
+        
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-8 mt-2">
+            <h2 class="text-xl font-semibold text-gray-800 mb-6 text-center">生徒の新規追加</h2>
+            
+            <form action="/add_student" method="POST" class="space-y-5">
+                <div>
+                    <label for="name" class="block text-sm font-medium text-gray-700 mb-1">名前 <span class="text-red-500">*</span></label>
+                    <input type="text" id="name" name="name" required placeholder="例: 山田 太郎"
+                        class="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+
+                <div>
+                    <label for="grade" class="block text-sm font-medium text-gray-700 mb-1">学年 <span class="text-red-500">*</span></label>
+                    <select id="grade" name="grade" required
+                        class="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="" disabled selected>学年を選択してください</option>
+                        <option value="高校1年生">高校1年生</option>
+                        <option value="高校2年生">高校2年生</option>
+                        <option value="高校3年生">高校3年生</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="school" class="block text-sm font-medium text-gray-700 mb-1">学校名 <span class="text-red-500">*</span></label>
+                    <input type="text" id="school" name="school" required placeholder="例: ○○高等学校"
+                        class="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+
+                <div class="pt-4">
+                    <button type="submit" class="w-full bg-blue-700 text-white px-5 py-3 rounded-lg font-medium hover:bg-blue-800 transition">
+                        登録する
+                    </button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <script>
+        let timeLeft = 30 * 60;
+        const timer = document.getElementById('session-timer');
+        function updateTimer() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            timer.textContent = `セッション残り ${minutes}:${seconds.toString().padStart(2, '0')}`;
+            if (timeLeft <= 0) {
+                window.location.href = '/logout?reason=timeout';
+            }
+            timeLeft--;
+        }
+        setInterval(updateTimer, 1000);
+    </script>
+</body>
+</html>

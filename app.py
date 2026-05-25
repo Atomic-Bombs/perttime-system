@@ -1,11 +1,8 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session
-
-from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
-from datetime import datetime
-
+from datetime import datetime, timedelta
 
 app = Flask(__name__)
 app.secret_key = 'perttime-secret-key'
@@ -16,8 +13,6 @@ login_manager.login_view = 'login'
 login_manager.login_message = "セッションが切れました。再度ログインしてください。"
 login_manager.login_message_category = "error"
 
-
-from datetime import timedelta
 app.permanent_session_lifetime = timedelta(minutes=30)
 
 # ユーザーテーブル
@@ -33,10 +28,12 @@ class User(UserMixin, db.Model):
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
 
-# 生徒テーブル
+# 生徒テーブル (★変更: grade, school を追加)
 class Student(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
+    grade = db.Column(db.String(50), nullable=False)   # 追加: 学年
+    school = db.Column(db.String(100), nullable=False) # 追加: 学校名
     records = db.relationship('Record', backref='student', lazy=True)
 
 # 面談記録テーブル
@@ -67,40 +64,61 @@ def login():
             session.permanent = True
             return redirect(url_for('index'))
         flash('ユーザー名またはパスワードが違います', 'error')
-    
-    #reason = request.args.get('reason')
-    #message = 'セッションが終了しました。再度ログインしてください。' if reason == 'timeout' else None
-    #return render_template('login.html', message=message)
     return render_template('login.html')
 
 # ログアウト
 @app.route('/logout')
-#@login_required
 def logout():
     logout_user()
     reason = request.args.get('reason')
     if reason == 'timeout':
         flash('一定時間操作がなかったため、セッションが切れました。再度ログインしてください。', 'error')
-        #return redirect(url_for('login', reason='timeout'))
     return redirect(url_for('login'))
 
-# トップページ（生徒一覧）
+# トップページ（生徒一覧 ＋ ★検索・絞り込み機能追加）
 @app.route('/')
 @login_required
 def index():
-    students = Student.query.all()
+    # URLパラメータから検索条件を取得
+    search_name = request.args.get('search_name', '')
+    grade = request.args.get('grade', '')
+
+    # クエリのベースを作成
+    query = Student.query
+
+    # 名前で検索（入力があれば部分一致で絞り込み）
+    if search_name:
+        query = query.filter(Student.name.contains(search_name))
+    
+    # 学年で絞り込み（選択されていれば完全一致で絞り込み）
+    if grade:
+        query = query.filter(Student.grade == grade)
+
+    # 最終的な結果を取得
+    students = query.all()
+    
     return render_template('index.html', students=students)
 
-# 生徒追加
-@app.route('/add_student', methods=['POST'])
+# 生徒追加 (★変更: GET処理追加 ＆ 学年・学校名の保存処理追加)
+@app.route('/add_student', methods=['GET', 'POST'])
 @login_required
 def add_student():
-    name = request.form['name']
-    student = Student(name=name)
-    db.session.add(student)
-    db.session.commit()
-    flash('生徒を保存しました！')
-    return redirect(url_for('index'))
+    if request.method == 'GET':
+        # 入力画面を表示
+        return render_template('add_student.html')
+
+    if request.method == 'POST':
+        # フォームからデータを受け取り保存
+        name = request.form['name']
+        grade = request.form['grade']
+        school = request.form['school']
+        
+        student = Student(name=name, grade=grade, school=school)
+        db.session.add(student)
+        db.session.commit()
+        
+        flash('生徒を新規追加しました！')
+        return redirect(url_for('index'))
 
 # 面談記録一覧
 @app.route('/student/<int:student_id>')
