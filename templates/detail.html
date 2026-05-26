@@ -68,17 +68,26 @@
             </a>
         </div>
 
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <div class="space-y-6">
             {% if records %}
-                <ul class="divide-y divide-gray-100">
                 {% for record in records %}
-                    <li class="py-5">
-                        <div class="flex items-center justify-between mb-3">
-                            <span class="text-base font-bold text-gray-800 bg-blue-50 px-3 py-1 rounded-lg">{{ record.date }}</span>
+                    <div class="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden">
+                        
+                        <div class="bg-gray-50/80 px-6 py-3.5 border-b border-gray-100 flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <span class="text-sm font-bold text-gray-700 flex items-center gap-1.5">
+                                    <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                    {{ record.date }}
+                                </span>
+                                <span class="text-xs bg-white border border-gray-200 text-gray-600 px-2.5 py-1 rounded-md flex items-center gap-1">
+                                    <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                                    担当: <span class="font-semibold text-gray-700">{{ record.instructor }}</span>
+                                </span>
+                            </div>
+                            
                             <div class="flex items-center gap-3">
                                 <a href="/edit_record/{{ record.id }}"
                                     class="text-xs text-blue-600 hover:underline leading-none">編集</a>
-                                
                                 <form action="/delete_record/{{ record.id }}" method="POST"
                                     onsubmit="return confirm('この記録を削除しますか？')"
                                     class="m-0 p-0 flex items-center">
@@ -87,45 +96,67 @@
                                 </form>
                             </div>
                         </div>
-                        <div class="grid grid-cols-2 gap-4 text-sm">
-                            <div class="bg-gray-50 rounded-lg p-3">
-                                <p class="text-xs text-gray-500 mb-1 font-medium">担当者</p>
-                                <p class="text-gray-800">{{ record.instructor }}</p>
+
+                        <div class="p-6 space-y-5">
+                            
+                            <div class="clamp-container">
+                                <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5 flex items-center gap-1">
+                                    <svg class="w-3.5 h-3.5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
+                                    今週やったこと
+                                </h4>
+                                <div class="pl-3.5 border-l-2 border-blue-500/70">
+                                    <p class="text-sm text-gray-800 whitespace-pre-wrap line-clamp-3 clamp-text leading-relaxed">{{ record.deliverables }}</p>
+                                    <button onclick="toggleText(this)" class="text-xs text-blue-600 hover:underline mt-1 hidden clamp-btn font-medium">続きを読む</button>
+                                </div>
                             </div>
-                            <div></div>
-                            <div class="bg-gray-50 rounded-lg p-3 col-span-2 min-h-24">
-                                <p class="text-xs text-gray-500 mb-1 font-medium">今週やったこと</p>
-                                <p class="text-gray-800">{{ record.deliverables }}</p>
+
+                            <div class="clamp-container">
+                                <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5 flex items-center gap-1">
+                                    <svg class="w-3.5 h-3.5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"></path></svg>
+                                    来週までの課題
+                                </h4>
+                                <div class="pl-3.5 border-l-2 border-emerald-500/70">
+                                    <p class="text-sm text-gray-800 whitespace-pre-wrap line-clamp-3 clamp-text leading-relaxed">{{ record.assignment }}</p>
+                                    <button onclick="toggleText(this)" class="text-xs text-emerald-600 hover:underline mt-1 hidden clamp-btn font-medium">続きを読む</button>
+                                </div>
                             </div>
-                            <div class="bg-gray-50 rounded-lg p-3 col-span-2 min-h-24">
-                                <p class="text-xs text-gray-500 mb-1 font-medium">来週までの課題</p>
-                                <p class="text-gray-800">{{ record.assignment }}</p>
-                            </div>
+
                             {% if record.memo %}
-                            <div class="bg-yellow-50 rounded-lg p-3 col-span-2">
-                                <p class="text-xs text-yellow-600 mb-1 font-medium">メモ</p>
-                                <p class="text-gray-800">{{ record.memo }}</p>
+                            <div>
+                                <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5 flex items-center gap-1">
+                                    <svg class="w-3.5 h-3.5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                                    メモ
+                                </h4>
+                                <div class="pl-3.5 border-l-2 border-amber-500/70">
+                                    <p class="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">{{ record.memo }}</p>
+                                </div>
                             </div>
                             {% endif %}
-                            <div class="bg-gray-50 rounded-lg p-3">
-                                <p class="text-xs text-gray-500 mb-1 font-medium">次回担当者</p>
-                                <p class="text-gray-800">{{ record.next_instructor }}</p>
+                        </div>
+
+                        <div class="bg-blue-50/70 px-6 py-3.5 border-t border-blue-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-sm text-blue-800">
+                            <div class="flex items-center gap-2 font-semibold">
+                                <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                <span>次回面談日: <span class="text-base text-blue-900 font-bold ml-1">{{ record.next_meeting_date }}</span></span>
                             </div>
-                            <div class="bg-gray-50 rounded-lg p-3">
-                                <p class="text-xs text-gray-500 mb-1 font-medium">次回面談日</p>
-                                <p class="text-gray-800">{{ record.next_meeting_date }}</p>
+                            <div class="flex items-center gap-1.5 text-xs bg-white border border-blue-200 text-blue-700 px-2.5 py-1 rounded-md font-medium self-start sm:self-auto shadow-sm">
+                                <svg class="w-3.5 h-3.5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                                次回担当: {{ record.next_instructor }}
                             </div>
                         </div>
-                    </li>
+
+                    </div>
                 {% endfor %}
-                </ul>
             {% else %}
-                <p class="text-sm text-gray-400">まだ記録がありません</p>
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-8 text-center">
+                    <p class="text-sm text-gray-400">まだ記録がありません</p>
+                </div>
             {% endif %}
         </div>
     </main>
 
     <script>
+        // セッションタイマーの処理
         if (!sessionStorage.getItem('is_logged_in')) {
             window.location.replace('/logout'); 
         }
@@ -144,6 +175,32 @@
         }
         updateTimer();
         const intervalId = setInterval(updateTimer, 1000);
+
+        // 「続きを読む」長い文章の折りたたみ制御用スクリプト
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.clamp-container').forEach(container => {
+                const textEl = container.querySelector('.clamp-text');
+                const btnEl = container.querySelector('.clamp-btn');
+                
+                // テキストの実際の高さが表示領域を超えている場合のみボタンを表示
+                if (textEl.scrollHeight > textEl.clientHeight) {
+                    btnEl.classList.remove('hidden');
+                }
+            });
+        });
+
+        function toggleText(btn) {
+            const container = btn.closest('.clamp-container');
+            const textEl = container.querySelector('.clamp-text');
+            
+            if (textEl.classList.contains('line-clamp-3')) {
+                textEl.classList.remove('line-clamp-3');
+                btn.textContent = '閉じる';
+            } else {
+                textEl.classList.add('line-clamp-3');
+                btn.textContent = '続きを読む';
+            }
+        }
     </script>
 </body>
 </html>
