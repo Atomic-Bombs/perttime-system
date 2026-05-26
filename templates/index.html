@@ -16,7 +16,7 @@
                     </div>
                     <span class="text-sm text-blue-200">{{ current_user.code }}</span>
                 </a>
-                </div>
+            </div>
             <h1 class="text-xl font-semibold absolute left-1/2 transform -translate-x-1/2">面談記録アプリ</h1>
             <div class="flex items-center gap-3">
                 <span id="session-timer" class="text-xs text-blue-200"></span>
@@ -50,6 +50,33 @@
             </a>
         </div>
 
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6 max-w-2xl mx-auto border-t-4 border-t-blue-500">
+            <h2 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-blue-600">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
+                </svg>
+                あなたの次回面談予定
+            </h2>
+            <ul class="divide-y divide-gray-100">
+                {% for record in upcoming_records %}
+                <li class="flex items-center justify-between py-3 px-2 hover:bg-gray-50 rounded-lg transition">
+                    <div class="flex flex-col">
+                        <span class="text-xs text-blue-600 font-bold mb-1">予定日: {{ record.next_meeting_date }}</span>
+                        <a href="/student/{{ record.student_id }}" class="text-gray-800 text-base font-semibold hover:text-blue-700">
+                            {{ record.student.name }} さん 
+                        </a>
+                    </div>
+                    <a href="/student/{{ record.student_id }}" class="text-xs bg-blue-50 border border-blue-200 text-blue-700 px-3 py-2 rounded-lg hover:bg-blue-100 transition font-medium whitespace-nowrap ml-2">
+                        記録を開く
+                    </a>
+                </li>
+                {% else %}
+                <li class="py-5 px-2 text-sm text-gray-500 text-center bg-gray-50 rounded-lg border border-dashed border-gray-300">
+                    現在、担当予定の面談はありません。
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6 max-w-2xl mx-auto">
             {% with messages = get_flashed_messages() %}
             {% if messages %}

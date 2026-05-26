@@ -96,6 +96,16 @@ def index():
     search_name = request.args.get('search_name', '')
     grade = request.args.get('grade', '')
 
+    # 今日の日付を文字列(YYYY-MM-DD)で取得
+    today_str = datetime.now().strftime('%Y-%m-%d')
+    
+    # 次回担当者がログインユーザー(code)と一致し、次回面談日が今日以降のものを抽出
+    # 日付が近い順に並び替え
+    upcoming_records = Record.query.filter(
+        Record.next_instructor == current_user.code,
+        Record.next_meeting_date >= today_str
+    ).order_by(Record.next_meeting_date.asc()).all()
+
     # クエリのベースを作成
     query = Student.query
 
@@ -110,7 +120,7 @@ def index():
     # 最終的な結果を取得
     students = query.all()
     
-    return render_template('index.html', students=students)
+    return render_template('index.html', students=students, upcoming_records=upcoming_records)
 
 # 生徒追加 (★変更: GET処理追加 ＆ 学年・学校名の保存処理追加)
 @app.route('/add_student', methods=['GET', 'POST'])
