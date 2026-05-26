@@ -37,6 +37,22 @@
         {% endif %}
         {% endwith %}
 
+        <div class="bg-white rounded-xl shadow-sm border border-red-200 p-6 mb-6 border-t-4 border-t-red-500">
+            <h2 class="text-lg font-bold text-gray-800 mb-2">新年度の年次更新（進級処理）</h2>
+            <p class="text-xs text-gray-600 mb-4 leading-relaxed">
+                全生徒の学年を一括で進級させます。（高1 → 高2、高2 → 高3）<br>
+                現在の高3生は卒業扱いとなり、<span class="text-red-600 font-bold">生徒情報および過去の面談記録データがすべて完全に削除されます。</span><br><br>
+                <span class="text-amber-600 font-bold bg-amber-50 border border-amber-200 px-2 py-1 rounded inline-block mb-1">⚠️ 重要：実行タイミングの注意</span><br>
+                学年カラーの持ち上がりを正常に行うため、この処理は<span class="text-red-600 font-bold underline">必ず「4月1日以降」に実行してください。</span><br>
+                （3月中の春休みなどにフライングで実行すると、システムの年度計算の基準がズレてしまい、生徒の学年カラーが意図しない色に変わってしまいます。）
+            </p>
+            <form action="/advance_years" method="POST" onsubmit="return confirm('本当に一括進級処理を実行しますか？\n\n【確認事項】\n・高3生のデータは完全に削除され、取り消せません。\n・本日の日付が【4月1日以降】であることを確認しましたか？')">
+                <button type="submit" class="w-full bg-red-600 text-white py-2.5 rounded-lg text-sm font-semibold hover:bg-red-700 transition shadow-sm">
+                    一括進級（年次更新）を実行する
+                </button>
+            </form>
+        </div>
+
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
             <h2 class="text-lg font-medium text-gray-700 mb-4">アカウントを追加</h2>
             <form action="/add_user" method="POST" class="space-y-4">

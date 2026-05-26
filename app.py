@@ -12,20 +12,42 @@ db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
-#login_manager.login_message = "セッションが切れました。再度ログインしてください。"
-#login_manager.login_message_category = "error"
 
-# 🌟 追加：未ログイン、またはセッション切れの時の挙動をカスタマイズする
 @login_manager.unauthorized_handler
 def unauthorized():
-    # 画面を開きっぱなしで30分経った時（真のタイムアウト）だけメッセージを出す
     if 'user_id' in session:
         flash("セッションの有効期限が切れました。再度ログインしてください。", "error")
-    
-    # タブを一度閉じた後や、完全な初回アクセスは、何も言わずにログイン画面へ
     return redirect(url_for('login'))
 
-app.permanent_session_lifetime = timedelta(minutes=30)  # セッションの有効期限を30分に設定
+app.permanent_session_lifetime = timedelta(minutes=30)
+
+# 学年の色を計算するカスタムフィルター（高1=赤、高2=黄、高3=青）
+@app.template_filter('grade_color')
+def grade_color_filter(grade_str):
+    now = datetime.now()
+    year = now.year
+    if now.month < 4:  # 1月〜3月は前年度として扱う
+        year -= 1
+    
+    grade_num = 1
+    if "2" in grade_str:
+        grade_num = 2
+    elif "3" in grade_str:
+        grade_num = 3
+        
+    entrance_year = year - (grade_num - 1)
+    color_index = entrance_year % 3
+    
+    # 2026年度基準の正しい割り当て：
+    # 2026年入学（高1）: 2026 % 3 = 1 -> 赤
+    # 2025年入学（高2）: 2025 % 3 = 0 -> 黄
+    # 2024年入学（高3）: 2024 % 3 = 2 -> 青
+    if color_index == 1:
+        return "bg-red-50 border-red-200 text-red-700"          # 赤系
+    elif color_index == 0:
+        return "bg-yellow-50 border-yellow-200 text-yellow-700"  # 黄系
+    else:
+        return "bg-blue-50 border-blue-200 text-blue-700"        # 青系
 
 # ユーザーテーブル
 class User(UserMixin, db.Model):
@@ -40,12 +62,12 @@ class User(UserMixin, db.Model):
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
 
-# 生徒テーブル (★変更: grade, school を追加)
+# 生徒テーブル
 class Student(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
-    grade = db.Column(db.String(50), nullable=False)   # 追加: 学年
-    school = db.Column(db.String(100), nullable=False) # 追加: 学校名
+    grade = db.Column(db.String(50), nullable=False)
+    school = db.Column(db.String(100), nullable=False)
     records = db.relationship('Record', backref='student', lazy=True)
 
 # 面談記録テーブル
@@ -73,7 +95,7 @@ def login():
         user = User.query.filter_by(code=code).first()
         if user and user.check_password(password):
             login_user(user)
-            session.permanent = False  # セッションの有効期限をブラウザセッションに設定
+            session.permanent = False
             return redirect(url_for('index'))
         flash('ユーザー名またはパスワードが違います', 'error')
     return render_template('login.html')
@@ -88,50 +110,38 @@ def logout():
         flash('一定時間操作がなかったため、セッションが切れました。再度ログインしてください。', 'error')
     return redirect(url_for('login'))
 
-# トップページ（生徒一覧 ＋ ★検索・絞り込み機能追加）
+# トップページ（生徒一覧）
 @app.route('/')
 @login_required
 def index():
-    # URLパラメータから検索条件を取得
     search_name = request.args.get('search_name', '')
     grade = request.args.get('grade', '')
-
-    # 今日の日付を文字列(YYYY-MM-DD)で取得
     today_str = datetime.now().strftime('%Y-%m-%d')
     
-    # 次回担当者がログインユーザー(code)と一致し、次回面談日が今日以降のものを抽出
-    # 日付が近い順に並び替え
     upcoming_records = Record.query.filter(
         Record.next_instructor == current_user.code,
         Record.next_meeting_date >= today_str
     ).order_by(Record.next_meeting_date.asc()).all()
 
-    # クエリのベースを作成
     query = Student.query
 
-    # 名前で検索（入力があれば部分一致で絞り込み）
     if search_name:
         query = query.filter(Student.name.contains(search_name))
     
-    # 学年で絞り込み（選択されていれば完全一致で絞り込み）
     if grade:
         query = query.filter(Student.grade == grade)
 
-    # 最終的な結果を取得
     students = query.all()
-    
     return render_template('index.html', students=students, upcoming_records=upcoming_records)
 
-# 生徒追加 (★変更: GET処理追加 ＆ 学年・学校名の保存処理追加)
+# 生徒追加
 @app.route('/add_student', methods=['GET', 'POST'])
 @login_required
 def add_student():
     if request.method == 'GET':
-        # 入力画面を表示
         return render_template('add_student.html')
 
     if request.method == 'POST':
-        # フォームからデータを受け取り保存
         name = request.form['name']
         grade = request.form['grade']
         school = request.form['school']
@@ -142,6 +152,20 @@ def add_student():
         
         flash('生徒を新規追加しました！')
         return redirect(url_for('index'))
+
+# 生徒情報の編集
+@app.route('/edit_student/<int:student_id>', methods=['GET', 'POST'])
+@login_required
+def edit_student(student_id):
+    student = Student.query.get_or_404(student_id)
+    if request.method == 'POST':
+        student.name = request.form['name']
+        student.grade = request.form['grade']
+        student.school = request.form['school']
+        db.session.commit()
+        flash('生徒情報を更新しました！', 'success')
+        return redirect(url_for('student_detail', student_id=student.id))
+    return render_template('edit_student.html', student=student)
 
 # 面談記録一覧
 @app.route('/student/<int:student_id>')
@@ -240,6 +264,30 @@ def admin():
         return redirect(url_for('index'))
     users = User.query.all()
     return render_template('admin.html', users=users)
+
+# 年次更新（一括進級処理）
+@app.route('/advance_years', methods=['POST'])
+@login_required
+def advance_years():
+    if not current_user.is_admin:
+        flash('管理者のみ実行できます', 'error')
+        return redirect(url_for('index'))
+    
+    students = Student.query.all()
+    for student in students:
+        if student.grade == '高校3年生':
+            # 高校3年生の場合、紐づく面談記録をすべて削除
+            Record.query.filter_by(student_id=student.id).delete()
+            # 生徒データ自体も削除
+            db.session.delete(student)
+        elif student.grade == '高校2年生':
+            student.grade = '高校3年生'
+        elif student.grade == '高校1年生':
+            student.grade = '高校2年生'
+            
+    db.session.commit()
+    flash('新年度への進級処理が完了しました！高校3年生のデータは自動的に削除されました。', 'success')
+    return redirect(url_for('admin'))
 
 # アカウント追加
 @app.route('/add_user', methods=['POST'])
