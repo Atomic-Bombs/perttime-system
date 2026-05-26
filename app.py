@@ -18,12 +18,11 @@ login_manager.login_view = 'login'
 # 🌟 追加：未ログイン、またはセッション切れの時の挙動をカスタマイズする
 @login_manager.unauthorized_handler
 def unauthorized():
-    # セッション内に前回のログインの残骸（ユーザーIDなど）があるかチェック
-    # これがあるということは「ログインしていたが、30分経過して切れた」状態を意味します
+    # 画面を開きっぱなしで30分経った時（真のタイムアウト）だけメッセージを出す
     if 'user_id' in session:
         flash("セッションの有効期限が切れました。再度ログインしてください。", "error")
     
-    # 完全に初回アクセス、またはブラウザを一度閉じた後の場合は、フラッシュメッセージを出さずに静かに遷移
+    # タブを一度閉じた後や、完全な初回アクセスは、何も言わずにログイン画面へ
     return redirect(url_for('login'))
 
 app.permanent_session_lifetime = timedelta(minutes=30)  # セッションの有効期限を30分に設定

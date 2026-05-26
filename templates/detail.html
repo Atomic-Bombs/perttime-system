@@ -121,6 +121,11 @@
     </main>
 
     <script>
+        if (!sessionStorage.getItem('is_logged_in')) {
+            window.location.replace('/logout'); 
+        }
+
+
         let timeLeft = 30 * 60;
         const timer = document.getElementById('session-timer');
         function updateTimer() {
