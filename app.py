@@ -12,10 +12,21 @@ db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
-login_manager.login_message = "セッションが切れました。再度ログインしてください。"
-login_manager.login_message_category = "error"
+#login_manager.login_message = "セッションが切れました。再度ログインしてください。"
+#login_manager.login_message_category = "error"
 
-app.permanent_session_lifetime = timedelta(minutes=30)
+# 🌟 追加：未ログイン、またはセッション切れの時の挙動をカスタマイズする
+@login_manager.unauthorized_handler
+def unauthorized():
+    # セッション内に前回のログインの残骸（ユーザーIDなど）があるかチェック
+    # これがあるということは「ログインしていたが、30分経過して切れた」状態を意味します
+    if 'user_id' in session:
+        flash("セッションの有効期限が切れました。再度ログインしてください。", "error")
+    
+    # 完全に初回アクセス、またはブラウザを一度閉じた後の場合は、フラッシュメッセージを出さずに静かに遷移
+    return redirect(url_for('login'))
+
+app.permanent_session_lifetime = timedelta(minutes=30)  # セッションの有効期限を30分に設定
 
 # ユーザーテーブル
 class User(UserMixin, db.Model):
@@ -63,7 +74,7 @@ def login():
         user = User.query.filter_by(code=code).first()
         if user and user.check_password(password):
             login_user(user)
-            session.permanent = True
+            session.permanent = False  # セッションの有効期限をブラウザセッションに設定
             return redirect(url_for('index'))
         flash('ユーザー名またはパスワードが違います', 'error')
     return render_template('login.html')
@@ -72,6 +83,7 @@ def login():
 @app.route('/logout')
 def logout():
     logout_user()
+    session.clear()
     reason = request.args.get('reason')
     if reason == 'timeout':
         flash('一定時間操作がなかったため、セッションが切れました。再度ログインしてください。', 'error')
