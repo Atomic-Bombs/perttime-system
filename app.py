@@ -158,6 +158,8 @@ def add_record(student_id):
     student = Student.query.get_or_404(student_id)
     error = None
     form_data = {}
+    users = User.query.all()
+
     if request.method == 'POST':
         form_data = request.form
         date_val = request.form['date']
@@ -179,7 +181,7 @@ def add_record(student_id):
             db.session.commit()
             flash('記録を保存しました！', 'success')
             return redirect(url_for('student_detail', student_id=student_id))
-    return render_template('add_record.html', student=student, error=error, form_data=form_data)
+    return render_template('add_record.html', student=student, error=error, form_data=form_data, users=users)
 
 # 面談記録の編集
 @app.route('/edit_record/<int:record_id>', methods=['GET', 'POST'])
@@ -188,6 +190,7 @@ def edit_record(record_id):
     record = Record.query.get_or_404(record_id)
     error = None
     success = None
+    users = User.query.all()
     if request.method == 'POST':
         date = request.form['date']
         next_meeting_date = request.form['next_meeting_date']

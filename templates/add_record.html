@@ -44,20 +44,36 @@
                         <input type="date" name="date" required value="{{ form_data.get('date', '') }}"
                             class="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                     </div>
+                    
                     <div>
                         <label class="block text-sm text-gray-600 mb-1">担当者</label>
-                        <input type="text" name="instructor" placeholder="担当者名" required value="{{ form_data.get('instructor', '') }}"
+                        <select name="instructor" required
                             class="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            {% for u in users %}
+                            <option value="{{ u.code }}" {% if form_data.get('instructor', current_user.code) == u.code %}selected{% endif %}>
+                                {{ u.code }}
+                            </option>
+                            {% endfor %}
+                        </select>
                     </div>
+                    
                     <div>
                         <label class="block text-sm text-gray-600 mb-1">次回面談日</label>
                         <input type="date" name="next_meeting_date" required value="{{ form_data.get('next_meeting_date', '') }}"
                             class="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                     </div>
+                    
                     <div>
                         <label class="block text-sm text-gray-600 mb-1">次回担当者</label>
-                        <input type="text" name="next_instructor" placeholder="次回担当者名" required value="{{ form_data.get('next_instructor', '') }}"
+                        <select name="next_instructor" required
                             class="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="" disabled {% if not form_data.get('next_instructor') %}selected{% endif %}>選択してください</option>
+                            {% for u in users %}
+                            <option value="{{ u.code }}" {% if form_data.get('next_instructor') == u.code %}selected{% endif %}>
+                                {{ u.code }}
+                            </option>
+                            {% endfor %}
+                        </select>
                     </div>
                 </div>
                 <div>

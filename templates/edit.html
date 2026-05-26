@@ -45,11 +45,19 @@
                     <input type="date" name="date" value="{{ record.date }}" required
                         class="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
+                
                 <div>
                     <label class="block text-sm text-gray-600 mb-1">担当者</label>
-                    <input type="text" name="instructor" value="{{ record.instructor }}" placeholder="担当者名"
+                    <select name="instructor" required
                         class="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        {% for u in users %}
+                        <option value="{{ u.code }}" {% if record.instructor == u.code %}selected{% endif %}>
+                            {{ u.code }}
+                        </option>
+                        {% endfor %}
+                    </select>
                 </div>
+                
                 <div>
                     <label class="block text-sm text-gray-600 mb-1">今週やったこと</label>
                     <textarea name="deliverables" rows="4" required
@@ -70,11 +78,19 @@
                     <input type="date" name="next_meeting_date" value="{{ record.next_meeting_date }}"
                         class="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
+                
                 <div>
                     <label class="block text-sm text-gray-600 mb-1">次回担当者</label>
-                    <input type="text" name="next_instructor" value="{{ record.next_instructor }}" placeholder="次回担当者名"
+                    <select name="next_instructor" required
                         class="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        {% for u in users %}
+                        <option value="{{ u.code }}" {% if record.next_instructor == u.code %}selected{% endif %}>
+                            {{ u.code }}
+                        </option>
+                        {% endfor %}
+                    </select>
                 </div>
+                
                 <button type="submit"
                     class="w-full bg-blue-700 text-white py-2 rounded-lg text-sm hover:bg-blue-800 transition">
                     保存
