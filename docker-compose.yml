@@ -1,0 +1,9 @@
+services:
+  app:
+    build: .
+    container_name: perttime-system
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./instance:/app/instance
+    restart: unless-stopped

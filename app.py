@@ -117,22 +117,35 @@ def index():
     search_name = request.args.get('search_name', '')
     grade = request.args.get('grade', '')
     today_str = datetime.now().strftime('%Y-%m-%d')
-    
+
+    # 本日の面談予定
+    today_records = Record.query.filter(
+        Record.next_instructor == current_user.code,
+        Record.next_meeting_date == today_str
+    ).order_by(Record.next_meeting_date.asc()).all()
+
+    # 明日以降の面談予定
     upcoming_records = Record.query.filter(
         Record.next_instructor == current_user.code,
-        Record.next_meeting_date >= today_str
+        Record.next_meeting_date > today_str
     ).order_by(Record.next_meeting_date.asc()).all()
 
     query = Student.query
 
     if search_name:
         query = query.filter(Student.name.contains(search_name))
-    
+
     if grade:
         query = query.filter(Student.grade == grade)
 
     students = query.all()
-    return render_template('index.html', students=students, upcoming_records=upcoming_records)
+
+    return render_template(
+        'index.html',
+        students=students,
+        today_records=today_records,
+        upcoming_records=upcoming_records
+    )
 
 # 生徒追加
 @app.route('/add_student', methods=['GET', 'POST'])

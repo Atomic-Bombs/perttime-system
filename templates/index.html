@@ -51,31 +51,139 @@
         </div>
 
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6 max-w-2xl mx-auto border-t-4 border-t-blue-500">
+
+            <!-- タイトル -->
             <h2 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-blue-600">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
+                <svg xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke-width="1.5"
+                    stroke="currentColor"
+                    class="w-5 h-5 text-blue-600">
+                    <path stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 015.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
                 </svg>
-                あなたの次回面談予定
+                面談予定
             </h2>
-            <ul class="divide-y divide-gray-100">
-                {% for record in upcoming_records %}
-                <li class="flex items-center justify-between py-3 px-2 hover:bg-gray-50 rounded-lg transition">
-                    <div class="flex flex-col">
-                        <span class="text-xs text-blue-600 font-bold mb-1">予定日: {{ record.next_meeting_date }}</span>
-                        <a href="/student/{{ record.student_id }}" class="text-gray-800 text-base font-semibold hover:text-blue-700">
-                            {{ record.student.name }} さん 
+
+            <!-- 切り替えボタン -->
+            <div class="flex bg-gray-100 rounded-lg p-1 mb-5">
+
+                <button
+                    id="today-tab"
+                    type="button"
+                    onclick="showSchedule('today')"
+                    class="flex-1 py-2 px-4 rounded-md text-sm font-medium transition bg-blue-600 text-white shadow-sm">
+                    本日の面談
+                </button>
+
+                <button
+                    id="upcoming-tab"
+                    type="button"
+                    onclick="showSchedule('upcoming')"
+                    class="flex-1 py-2 px-4 rounded-md text-sm font-medium transition text-gray-600 hover:text-gray-800">
+                    今後の面談
+                </button>
+
+            </div>
+
+
+            <!-- ========================= -->
+            <!-- 本日の面談 -->
+            <!-- ========================= -->
+            <div id="today-schedule">
+
+                <h3 class="text-sm font-semibold text-gray-600 mb-3">
+                    本日の面談予定
+                </h3>
+
+                <ul class="divide-y divide-gray-100">
+
+                    {% for record in today_records %}
+
+                    <li class="flex items-center justify-between py-3 px-2 hover:bg-gray-50 rounded-lg transition">
+
+                        <div class="flex flex-col">
+
+                            <span class="text-xs text-blue-600 font-bold mb-1">
+                                本日
+                            </span>
+
+                            <a href="/student/{{ record.student_id }}"
+                            class="text-gray-800 text-base font-semibold hover:text-blue-700">
+                                {{ record.student.name }} さん
+                            </a>
+
+                        </div>
+
+                        <a href="/student/{{ record.student_id }}"
+                        class="text-xs bg-blue-50 border border-blue-200 text-blue-700 px-3 py-2 rounded-lg hover:bg-blue-100 transition font-medium whitespace-nowrap ml-2">
+                            記録を開く
                         </a>
-                    </div>
-                    <a href="/student/{{ record.student_id }}" class="text-xs bg-blue-50 border border-blue-200 text-blue-700 px-3 py-2 rounded-lg hover:bg-blue-100 transition font-medium whitespace-nowrap ml-2">
-                        記録を開く
-                    </a>
-                </li>
-                {% else %}
-                <li class="py-5 px-2 text-sm text-gray-500 text-center bg-gray-50 rounded-lg border border-dashed border-gray-300">
-                    現在、担当予定の面談はありません。
-                </li>
-                {% endfor %}
-            </ul>
+
+                    </li>
+
+                    {% else %}
+
+                    <li class="py-5 px-2 text-sm text-gray-500 text-center bg-gray-50 rounded-lg border border-dashed border-gray-300">
+                        本日の面談予定はありません。
+                    </li>
+
+                    {% endfor %}
+
+                </ul>
+
+            </div>
+
+
+            <!-- ========================= -->
+            <!-- 次回以降の面談 -->
+            <!-- ========================= -->
+            <div id="upcoming-schedule" class="hidden">
+
+                <h3 class="text-sm font-semibold text-gray-600 mb-3">
+                    あなたの今後の面談予定
+                </h3>
+
+                <ul class="divide-y divide-gray-100">
+
+                    {% for record in upcoming_records %}
+
+                    <li class="flex items-center justify-between py-3 px-2 hover:bg-gray-50 rounded-lg transition">
+
+                        <div class="flex flex-col">
+
+                            <span class="text-xs text-blue-600 font-bold mb-1">
+                                予定日: {{ record.next_meeting_date }}
+                            </span>
+
+                            <a href="/student/{{ record.student_id }}"
+                            class="text-gray-800 text-base font-semibold hover:text-blue-700">
+                                {{ record.student.name }} さん
+                            </a>
+
+                        </div>
+
+                        <a href="/student/{{ record.student_id }}"
+                        class="text-xs bg-blue-50 border border-blue-200 text-blue-700 px-3 py-2 rounded-lg hover:bg-blue-100 transition font-medium whitespace-nowrap ml-2">
+                            記録を開く
+                        </a>
+
+                    </li>
+
+                    {% else %}
+
+                    <li class="py-5 px-2 text-sm text-gray-500 text-center bg-gray-50 rounded-lg border border-dashed border-gray-300">
+                        今後、担当予定の面談はありません。
+                    </li>
+
+                    {% endfor %}
+
+                </ul>
+
+            </div>
+
         </div>
 
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6 max-w-2xl mx-auto">
@@ -137,22 +245,93 @@
     </main>
 
     <script>
+        // ========================================
+        // ログイン状態の確認
+        // ========================================
         if (!sessionStorage.getItem('is_logged_in')) {
-            window.location.replace('/logout'); 
+            window.location.replace('/logout');
         }
+
+
+        // ========================================
+        // 面談予定の表示切り替え
+        // ========================================
+        function showSchedule(type) {
+            const todaySchedule = document.getElementById('today-schedule');
+            const upcomingSchedule = document.getElementById('upcoming-schedule');
+
+            const todayTab = document.getElementById('today-tab');
+            const upcomingTab = document.getElementById('upcoming-tab');
+
+            if (type === 'today') {
+
+                // 本日の面談を表示
+                todaySchedule.classList.remove('hidden');
+                upcomingSchedule.classList.add('hidden');
+
+                // 「本日の面談」を選択状態
+                todayTab.classList.add(
+                    'bg-blue-600',
+                    'text-white',
+                    'shadow-sm'
+                );
+                todayTab.classList.remove('text-gray-600');
+
+                // 「次回の面談」を通常状態
+                upcomingTab.classList.remove(
+                    'bg-blue-600',
+                    'text-white',
+                    'shadow-sm'
+                );
+                upcomingTab.classList.add('text-gray-600');
+
+            } else if (type === 'upcoming') {
+
+                // 次回の面談を表示
+                todaySchedule.classList.add('hidden');
+                upcomingSchedule.classList.remove('hidden');
+
+                // 「次回の面談」を選択状態
+                upcomingTab.classList.add(
+                    'bg-blue-600',
+                    'text-white',
+                    'shadow-sm'
+                );
+                upcomingTab.classList.remove('text-gray-600');
+
+                // 「本日の面談」を通常状態
+                todayTab.classList.remove(
+                    'bg-blue-600',
+                    'text-white',
+                    'shadow-sm'
+                );
+                todayTab.classList.add('text-gray-600');
+            }
+        }
+
+
+        // ========================================
+        // セッションタイマー
+        // ========================================
         let timeLeft = 30 * 60;
         const timer = document.getElementById('session-timer');
+
         function updateTimer() {
             const minutes = Math.floor(timeLeft / 60);
             const seconds = timeLeft % 60;
-            timer.textContent = `セッション残り ${minutes}:${seconds.toString().padStart(2, '0')}`;
+
+            timer.textContent =
+                `セッション残り ${minutes}:${seconds.toString().padStart(2, '0')}`;
+
             if (timeLeft <= 0) {
                 clearInterval(intervalId);
                 window.location.href = '/logout?reason=timeout';
                 return;
             }
+
             timeLeft--;
         }
+
         updateTimer();
         const intervalId = setInterval(updateTimer, 1000);
     </script>
