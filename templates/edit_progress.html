@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>受講状況の編集 - {{ student.name }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-50 min-h-screen">
+
+    <!-- ヘッダー -->
+    <header class="bg-blue-800 text-white px-6 py-4 shadow">
+        <div class="flex items-center justify-between max-w-5xl mx-auto">
+
+            <div class="flex items-center gap-3">
+                <a href="/change_password" class="flex items-center gap-2 hover:opacity-80">
+                    <div class="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-xs font-semibold">
+                        {{ current_user.code[:2].upper() }}
+                    </div>
+                    <span class="text-sm text-blue-200">
+                        {{ current_user.code }}
+                    </span>
+                </a>
+            </div>
+
+            <h1 class="text-xl font-semibold absolute left-1/2 transform -translate-x-1/2">
+                面談記録アプリ
+            </h1>
+
+            <div class="flex items-center gap-3">
+                <span id="session-timer" class="text-xs text-blue-200"></span>
+
+                <a href="/logout"
+                   class="text-sm bg-white text-blue-800 px-3 py-1 rounded-lg hover:bg-blue-50 transition font-medium">
+                    ログアウト
+                </a>
+            </div>
+
+        </div>
+    </header>
+
+
+    <!-- メイン -->
+    <main class="max-w-2xl mx-auto px-4 py-8">
+
+        <!-- 戻る -->
+        <a href="/student/{{ student.id }}?month={{ month }}"
+           class="text-blue-600 text-sm hover:underline">
+            ← 生徒詳細に戻る
+        </a>
+
+
+        <!-- タイトル -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mt-6">
+
+            <h2 class="text-xl font-semibold text-gray-800">
+                受講状況を編集
+            </h2>
+
+            <p class="text-sm text-gray-500 mt-2">
+                {{ student.name }}
+            </p>
+
+            <div class="mt-4 inline-block bg-blue-50 border border-blue-200 text-blue-700 px-3 py-1.5 rounded-lg text-sm font-medium">
+                {{ month[:4] }}年{{ month[5:7]|int }}月
+            </div>
+
+        </div>
+
+
+        <!-- 入力フォーム -->
+        <form method="POST"
+              class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mt-6">
+
+            <!-- 月目標 -->
+            <div class="mb-6">
+
+                <label for="monthly_goal"
+                       class="block text-sm font-semibold text-gray-700 mb-2">
+                    月目標
+                </label>
+
+                <div class="flex items-center gap-2">
+
+                    <input
+                        type="number"
+                        id="monthly_goal"
+                        name="monthly_goal"
+                        step="0.5"
+                        min="0"
+                        value="{{ progress.monthly_goal if progress.monthly_goal is not none else '' }}"
+                        placeholder="例：20"
+                        class="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm
+                               focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    >
+
+                    <span class="text-sm text-gray-500 whitespace-nowrap">
+                        講
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <!-- 現在の受講状況 -->
+            <div class="mb-8">
+
+                <label for="current_progress"
+                       class="block text-sm font-semibold text-gray-700 mb-2">
+                    現在の受講状況
+                </label>
+
+                <div class="flex items-center gap-2">
+
+                    <input
+                        type="number"
+                        id="current_progress"
+                        name="current_progress"
+                        step="0.5"
+                        min="0"
+                        value="{{ progress.current_progress if progress.current_progress is not none else '' }}"
+                        placeholder="例：12"
+                        class="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm
+                               focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                    >
+
+                    <span class="text-sm text-gray-500 whitespace-nowrap">
+                        講
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <!-- ボタン -->
+            <div class="flex justify-end gap-3">
+
+                <a
+                    href="/student/{{ student.id }}?month={{ month }}"
+                    class="px-5 py-2.5 rounded-lg border border-gray-300 text-sm
+                           text-gray-700 hover:bg-gray-50 transition font-medium"
+                >
+                    キャンセル
+                </a>
+
+                <button
+                    type="submit"
+                    class="bg-blue-700 text-white px-5 py-2.5 rounded-lg text-sm
+                           hover:bg-blue-800 transition font-medium shadow"
+                >
+                    保存する
+                </button>
+
+            </div>
+
+        </form>
+
+    </main>
+
+
+    <script>
+        // セッションタイマー
+        if (!sessionStorage.getItem('is_logged_in')) {
+            window.location.replace('/logout');
+        }
+
+        let timeLeft = 30 * 60;
+        const timer = document.getElementById('session-timer');
+
+        function updateTimer() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+
+            timer.textContent =
+                `セッション残り ${minutes}:${seconds.toString().padStart(2, '0')}`;
+
+            if (timeLeft <= 0) {
+                clearInterval(intervalId);
+                window.location.href = '/logout?reason=timeout';
+                return;
+            }
+
+            timeLeft--;
+        }
+
+        updateTimer();
+
+        const intervalId = setInterval(updateTimer, 1000);
+    </script>
+
+</body>
+</html>

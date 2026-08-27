@@ -70,6 +70,23 @@ class Student(db.Model):
     school = db.Column(db.String(100), nullable=False)
     records = db.relationship('Record', backref='student', lazy=True)
 
+# 月別受講状況テーブル
+class MonthlyProgress(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    student_id = db.Column(db.Integer, db.ForeignKey('student.id'), nullable=False)
+    month = db.Column(db.String(7), nullable=False)  # YYYY-MM
+    monthly_goal = db.Column(db.Float)
+    current_progress = db.Column(db.Float)
+
+    student = db.relationship(
+        'Student',
+        backref=db.backref('monthly_progresses', lazy=True)
+    )
+
+    __table_args__ = (
+        db.UniqueConstraint('student_id', 'month', name='unique_student_month'),
+    )
+
 # 面談記録テーブル
 class Record(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -185,8 +202,40 @@ def edit_student(student_id):
 @login_required
 def student_detail(student_id):
     student = Student.query.get_or_404(student_id)
-    records = Record.query.filter_by(student_id=student_id).order_by(Record.date.desc()).all()
-    return render_template('detail.html', student=student, records=records, error=None, form_data={})
+
+    # 面談記録
+    records = Record.query.filter_by(
+        student_id=student_id
+    ).order_by(Record.date.desc()).all()
+
+    # 現在の月
+    current_month = datetime.now().strftime('%Y-%m')
+
+    # URLで月が指定されていれば、その月を表示
+    selected_month = request.args.get('month', current_month)
+
+    # 指定された月の受講状況
+    monthly_progress = MonthlyProgress.query.filter_by(
+        student_id=student_id,
+        month=selected_month
+    ).first()
+
+    # この生徒の登録済み月一覧
+    monthly_progresses = MonthlyProgress.query.filter_by(
+        student_id=student_id
+    ).order_by(MonthlyProgress.month.desc()).all()
+
+    return render_template(
+        'detail.html',
+        student=student,
+        records=records,
+        error=None,
+        form_data={},
+        current_month=current_month,
+        selected_month=selected_month,
+        monthly_progress=monthly_progress,
+        monthly_progresses=monthly_progresses
+    )
 
 # 面談記録追加
 @app.route('/add_record/<int:student_id>', methods=['GET', 'POST'])
@@ -219,6 +268,59 @@ def add_record(student_id):
             flash('記録を保存しました！', 'success')
             return redirect(url_for('student_detail', student_id=student_id))
     return render_template('add_record.html', student=student, error=error, form_data=form_data, users=users)
+
+# 月別受講状況の編集
+@app.route('/edit_progress/<int:student_id>', methods=['GET', 'POST'])
+@login_required
+def edit_progress(student_id):
+    student = Student.query.get_or_404(student_id)
+
+    # URLから対象月を取得
+    month = request.args.get('month')
+
+    # monthが指定されていなければ現在の月
+    if not month:
+        month = datetime.now().strftime('%Y-%m')
+
+    # 対象月のデータを取得
+    progress = MonthlyProgress.query.filter_by(
+        student_id=student_id,
+        month=month
+    ).first()
+
+    # データがなければ新規作成
+    if not progress:
+        progress = MonthlyProgress(
+            student_id=student_id,
+            month=month
+        )
+
+    if request.method == 'POST':
+        monthly_goal = request.form.get('monthly_goal')
+        current_progress = request.form.get('current_progress')
+
+        progress.monthly_goal = float(monthly_goal) if monthly_goal else None
+        progress.current_progress = float(current_progress) if current_progress else None
+
+        # 新規データならDBに追加
+        if progress.id is None:
+            db.session.add(progress)
+
+        db.session.commit()
+
+        flash('受講状況を更新しました！', 'success')
+        return redirect(url_for(
+            'student_detail',
+            student_id=student_id,
+            month=month
+        ))
+
+    return render_template(
+        'edit_progress.html',
+        student=student,
+        progress=progress,
+        month=month
+    )
 
 # 面談記録の編集
 @app.route('/edit_record/<int:record_id>', methods=['GET', 'POST'])
