@@ -256,7 +256,7 @@ def add_record(student_id):
             record = Record(
                 date=date_val,
                 instructor=request.form['instructor'],
-                deliverables=request.form['deliverables'],
+                deliverables=request.form['deliverables'].strip(),
                 assignment=request.form['assignment'],
                 memo=request.form['memo'],
                 next_meeting_date=next_meeting_date,
@@ -329,24 +329,42 @@ def edit_record(record_id):
     record = Record.query.get_or_404(record_id)
     error = None
     success = None
+
+    # 担当者一覧を取得
     users = User.query.all()
+
     if request.method == 'POST':
         date = request.form['date']
         next_meeting_date = request.form['next_meeting_date']
+
         if next_meeting_date and next_meeting_date <= date:
             error = '次回面談日は面談日より後の日付にしてください'
         else:
             record.date = date
             record.instructor = request.form['instructor']
-            record.deliverables = request.form['deliverables']
-            record.assignment = request.form['assignment']
-            record.memo = request.form['memo']
+            record.deliverables = request.form['deliverables'].strip()
+            record.assignment = request.form['assignment'].strip()
+            record.memo = request.form['memo'].strip()
             record.next_meeting_date = next_meeting_date
             record.next_instructor = request.form['next_instructor']
+
             db.session.commit()
+
             flash('保存が完了しました！')
-            return redirect(url_for('student_detail', student_id=record.student_id))
-    return render_template('edit.html', record=record, error=error, success=success)
+            return redirect(
+                url_for(
+                    'student_detail',
+                    student_id=record.student_id
+                )
+            )
+
+    return render_template(
+        'edit.html',
+        record=record,
+        error=error,
+        success=success,
+        users=users
+    )
 
 # 生徒削除
 @app.route('/delete_student/<int:student_id>', methods=['POST'])
