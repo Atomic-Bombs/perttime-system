@@ -148,145 +148,70 @@
         <!-- ====================================== -->
         <!-- 月別受講状況 -->
         <!-- ====================================== -->
-
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
-
-            <!-- タイトル -->
-            <div class="flex items-center justify-between mb-5">
-
-                <h2 class="text-lg font-semibold text-gray-800">
-                    📊 月別受講状況
+        <div class="bg-white rounded-lg shadow p-6 mt-6">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-xl font-bold">
+                    月別受講状況
                 </h2>
 
-            </div>
-
-
-            <!-- 対象月 -->
-            <div class="mb-5">
-
-                <label
-                    for="month-select"
-                    class="block text-xs font-medium text-gray-500 mb-2"
+                <a
+                   href="{{ url_for('edit_progress', student_id=student.id, month=selected_month) }}"
+                    class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg"
                 >
-                    対象月
-                </label>
-
-
-                <select
-                    id="month-select"
-                    onchange="changeMonth(this.value)"
-                    class="border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-
-                    <!-- ================================= -->
-                    <!-- 現在の月 -->
-                    <!-- ================================= -->
-
-                    <option
-                        value="{{ current_month }}"
-                        {% if selected_month == current_month %}selected{% endif %}
-                    >
-                        {{ current_month[:4] }}年{{ current_month[5:7]|int }}月
-                    </option>
-
-
-                    <!-- ================================= -->
-                    <!-- 登録済みの過去月 -->
-                    <!-- ================================= -->
-
-                    {% for progress in monthly_progresses %}
-
-                        {% if progress.month != current_month %}
-
-                        <option
-                            value="{{ progress.month }}"
-                            {% if selected_month == progress.month %}selected{% endif %}
-                        >
-                            {{ progress.month[:4] }}年{{ progress.month[5:7]|int }}月
-                        </option>
-
-                        {% endif %}
-
-                    {% endfor %}
-
-                </select>
-
+                    編集
+                </a>
             </div>
 
-
-            <!-- ====================================== -->
-            <!-- 月別データ -->
-            <!-- ====================================== -->
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-
-
-                <!-- 月目標 -->
-                <div class="bg-blue-50 border border-blue-100 rounded-lg p-4">
-
-                    <p class="text-xs text-blue-600 font-medium mb-1">
-                        月目標
-                    </p>
-
-                    <p class="text-2xl font-bold text-blue-900">
-
-                        {% if monthly_progress and monthly_progress.monthly_goal is not none %}
-
-                            {{ monthly_progress.monthly_goal }}コマ
-
-                        {% else %}
-
-                            <span class="text-gray-400 text-base">
-                                未設定
-                            </span>
-
-                        {% endif %}
-
-                    </p>
-
-                </div>
-
-
-                <!-- 現在の受講状況 -->
-                <div class="bg-emerald-50 border border-emerald-100 rounded-lg p-4">
-
-                    <p class="text-xs text-emerald-600 font-medium mb-1">
-                        現在の受講状況
-                    </p>
-
-                    <p class="text-2xl font-bold text-emerald-900">
-
-                        {% if monthly_progress and monthly_progress.current_progress is not none %}
-
-                            {{ monthly_progress.current_progress }}コマ
-
-                        {% else %}
-
-                            <span class="text-gray-400 text-base">
-                                未設定
-                            </span>
-
-                        {% endif %}
-
-                    </p>
-
-                </div>
-
-            </div>
-
-
-            <!-- 受講状況編集 -->
-            <div class="flex justify-end mt-5">
+            <!-- 月切り替え -->
+            <div class="flex items-center justify-center gap-4 mb-6">
 
                 <a
-                    href="/edit_progress/{{ student.id }}?month={{ selected_month }}"
-                    class="bg-blue-700 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-800 transition font-medium"
+                    href="{{ url_for('student_detail', student_id=student.id, month=prev_month) }}"
+                    class="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg"
                 >
-                    受講状況を編集
+                    ← 前月
+                </a>
+
+                <div class="text-lg font-bold min-w-[120px] text-center">
+                    {{ selected_month[:4] }}年{{ selected_month[5:7]|int }}月
+                </div>
+
+                <a
+                    href="{{ url_for('student_detail', student_id=student.id, month=next_month) }}"
+                    class="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg"
+                >
+                    翌月 →
                 </a>
 
             </div>
 
+            {% if monthly_progress %}
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <p class="text-sm text-gray-500">
+                            月目標
+                        </p>
+                        <p class="text-2xl font-bold">
+                            {{ monthly_progress.monthly_goal if monthly_progress.monthly_goal is not none else '-' }}
+                        </p>
+                    </div>
+
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <p class="text-sm text-gray-500">
+                            現在の受講状況
+                        </p>
+                        <p class="text-2xl font-bold">
+                            {{ monthly_progress.current_progress if monthly_progress.current_progress is not none else '-' }}
+                        </p>
+                    </div>
+
+                </div>
+            {% else %}
+                <div class="text-center text-gray-500 py-6">
+                    この月の受講状況はまだ登録されていません。
+                </div>
+            {% endif %}
         </div>
 
 

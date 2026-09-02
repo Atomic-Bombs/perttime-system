@@ -203,36 +203,55 @@ def edit_student(student_id):
 def student_detail(student_id):
     student = Student.query.get_or_404(student_id)
 
-    # 面談記録
-    records = Record.query.filter_by(
-        student_id=student_id
-    ).order_by(Record.date.desc()).all()
+    current_month_date = datetime.now().replace(day=1)
+    current_month = current_month_date.strftime('%Y-%m')
 
-    # 現在の月
-    current_month = datetime.now().strftime('%Y-%m')
-
-    # URLで月が指定されていれば、その月を表示
     selected_month = request.args.get('month', current_month)
 
-    # 指定された月の受講状況
+    # 不正な月指定があった場合は今月に戻す
+    try:
+        selected_month_date = datetime.strptime(selected_month, '%Y-%m')
+    except ValueError:
+        selected_month_date = current_month_date
+        selected_month = current_month
+
+    # 前月
+    prev_month_date = selected_month_date - timedelta(days=1)
+    prev_month_date = prev_month_date.replace(day=1)
+    prev_month = prev_month_date.strftime('%Y-%m')
+
+    # 翌月
+    next_month_date = selected_month_date.replace(day=28) + timedelta(days=4)
+    next_month_date = next_month_date.replace(day=1)
+    next_month = next_month_date.strftime('%Y-%m')
+
+    # 選択中の月の受講状況
     monthly_progress = MonthlyProgress.query.filter_by(
-        student_id=student_id,
+        student_id=student.id,
         month=selected_month
     ).first()
 
-    # この生徒の登録済み月一覧
+    # 登録済みの月別受講状況
     monthly_progresses = MonthlyProgress.query.filter_by(
-        student_id=student_id
-    ).order_by(MonthlyProgress.month.desc()).all()
+        student_id=student.id
+    ).order_by(
+        MonthlyProgress.month.desc()
+    ).all()
+
+    records = Record.query.filter_by(
+        student_id=student.id
+    ).order_by(
+        Record.date.desc()
+    ).all()
 
     return render_template(
         'detail.html',
         student=student,
         records=records,
-        error=None,
-        form_data={},
         current_month=current_month,
         selected_month=selected_month,
+        prev_month=prev_month,
+        next_month=next_month,
         monthly_progress=monthly_progress,
         monthly_progresses=monthly_progresses
     )
