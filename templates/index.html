@@ -108,6 +108,9 @@
 
                             <span class="text-xs text-blue-600 font-bold mb-1">
                                 本日
+                                {% if record.next_meeting_time %}
+                                    {{ record.next_meeting_time }}
+                                {% endif %}
                             </span>
 
                             <a href="/student/{{ record.student_id }}"
@@ -154,9 +157,14 @@
 
                         <div class="flex flex-col">
 
-                            <span class="text-xs text-blue-600 font-bold mb-1">
-                                予定日: {{ record.next_meeting_date }}
+                                                    <div class="flex flex-col mb-1">
+                            <span class="text-xs text-blue-600 font-bold">
+                                {{ record.next_meeting_date }}
+                                {% if record.next_meeting_time %}
+                                    &nbsp;&nbsp;{{ record.next_meeting_time }}
+                                {% endif %}
                             </span>
+                        </div>
 
                             <a href="/student/{{ record.student_id }}"
                             class="text-gray-800 text-base font-semibold hover:text-blue-700">

@@ -477,6 +477,9 @@
                                     次回面談日:
                                     <span class="text-base text-blue-900 font-bold ml-1">
                                         {{ record.next_meeting_date }}
+                                        {% if record.next_meeting_time %}
+                                            &nbsp;&nbsp;{{ record.next_meeting_time }}
+                                        {% endif %}
                                     </span>
                                 </span>
 

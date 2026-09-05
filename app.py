@@ -96,6 +96,7 @@ class Record(db.Model):
     assignment = db.Column(db.Text)
     memo = db.Column(db.Text)
     next_meeting_date = db.Column(db.String(20))
+    next_meeting_time = db.Column(db.String(5))
     next_instructor = db.Column(db.String(100))
     student_id = db.Column(db.Integer, db.ForeignKey('student.id'), nullable=False)
 
@@ -139,13 +140,18 @@ def index():
     today_records = Record.query.filter(
         Record.next_instructor == current_user.code,
         Record.next_meeting_date == today_str
-    ).order_by(Record.next_meeting_date.asc()).all()
+    ).order_by(
+        Record.next_meeting_time.asc()
+    ).all()
 
     # 明日以降の面談予定
     upcoming_records = Record.query.filter(
         Record.next_instructor == current_user.code,
         Record.next_meeting_date > today_str
-    ).order_by(Record.next_meeting_date.asc()).all()
+    ).order_by(
+        Record.next_meeting_date.asc(),
+        Record.next_meeting_time.asc()
+    ).all()
 
     query = Student.query
 
@@ -269,6 +275,7 @@ def add_record(student_id):
         form_data = request.form
         date_val = request.form['date']
         next_meeting_date = request.form['next_meeting_date']
+        next_meeting_time = request.form['next_meeting_time']
         if next_meeting_date and next_meeting_date <= date_val:
             error = '次回面談日は面談日より後の日付にしてください'
         else:
@@ -279,6 +286,7 @@ def add_record(student_id):
                 assignment=request.form['assignment'],
                 memo=request.form['memo'],
                 next_meeting_date=next_meeting_date,
+                next_meeting_time=next_meeting_time,
                 next_instructor=request.form['next_instructor'],
                 student_id=student_id
             )
@@ -365,6 +373,7 @@ def edit_record(record_id):
             record.assignment = request.form['assignment'].strip()
             record.memo = request.form['memo'].strip()
             record.next_meeting_date = next_meeting_date
+            record.next_meeting_time = request.form['next_meeting_time']
             record.next_instructor = request.form['next_instructor']
 
             db.session.commit()

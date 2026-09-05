@@ -59,7 +59,15 @@
                     
                     <div>
                         <label class="block text-sm text-gray-600 mb-1">次回面談日</label>
-                        <input type="date" name="next_meeting_date" required value="{{ form_data.get('next_meeting_date', '') }}"
+                        <input type="date" name="next_meeting_date" required
+                            value="{{ form_data.get('next_meeting_date', '') }}"
+                            class="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm text-gray-600 mb-1">次回面談時間</label>
+                        <input type="time" name="next_meeting_time" required
+                            value="{{ form_data.get('next_meeting_time', '') }}"
                             class="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                     </div>
                     
