@@ -1,2 +1,6 @@
 __pycache__/
 *.pyc
+
+# SQLite database
+instance/*.db
+instance/*.db.backup
