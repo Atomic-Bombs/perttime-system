@@ -188,6 +188,7 @@
             {% if monthly_progress %}
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 
+                    <!-- 月目標 -->
                     <div class="bg-gray-50 rounded-lg p-4">
                         <p class="text-sm text-gray-500">
                             月目標
@@ -197,6 +198,7 @@
                         </p>
                     </div>
 
+                    <!-- 現在の受講状況 -->
                     <div class="bg-gray-50 rounded-lg p-4">
                         <p class="text-sm text-gray-500">
                             現在の受講状況
@@ -207,6 +209,47 @@
                     </div>
 
                 </div>
+
+                <!-- 目標達成状況 -->
+                <div class="bg-gray-50 rounded-lg p-4 mt-4">
+
+                    <div class="flex items-center justify-between mb-2">
+                        <p class="text-sm text-gray-500">
+                            目標達成状況
+                        </p>
+
+                        {% if achievement_rate is not none %}
+                            <p class="text-2xl font-bold text-blue-700">
+                                {{ achievement_rate|round|int }}%
+                            </p>
+                        {% else %}
+                            <p class="text-2xl font-bold text-gray-400">
+                                -
+                            </p>
+                        {% endif %}
+                    </div>
+
+                    {% if achievement_rate is not none %}
+
+                        <!-- プログレスバー -->
+                        <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+                            <div
+                                class="bg-blue-600 h-3 rounded-full transition-all duration-500"
+                                style="width: {{ achievement_rate if achievement_rate < 100 else 100 }}%;"
+                            ></div>
+                        </div>
+
+                        <!-- 現在 / 目標 -->
+                        <p class="text-xs text-gray-500 mt-2 text-right">
+                            {{ monthly_progress.current_progress }}
+                            /
+                            {{ monthly_progress.monthly_goal }}
+                        </p>
+
+                    {% endif %}
+
+                </div>
+
             {% else %}
                 <div class="text-center text-gray-500 py-6">
                     この月の受講状況はまだ登録されていません。

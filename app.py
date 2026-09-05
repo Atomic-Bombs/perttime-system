@@ -237,6 +237,21 @@ def student_detail(student_id):
         month=selected_month
     ).first()
 
+    # 目標達成率を計算
+    achievement_rate = None
+
+    if monthly_progress:
+        if (
+            monthly_progress.monthly_goal is not None
+            and monthly_progress.monthly_goal > 0
+            and monthly_progress.current_progress is not None
+        ):
+            achievement_rate = (
+                monthly_progress.current_progress
+                / monthly_progress.monthly_goal
+                * 100
+            )
+
     # 登録済みの月別受講状況
     monthly_progresses = MonthlyProgress.query.filter_by(
         student_id=student.id
@@ -254,12 +269,11 @@ def student_detail(student_id):
         'detail.html',
         student=student,
         records=records,
-        current_month=current_month,
+        monthly_progress=monthly_progress,
+        achievement_rate=achievement_rate,
         selected_month=selected_month,
         prev_month=prev_month,
-        next_month=next_month,
-        monthly_progress=monthly_progress,
-        monthly_progresses=monthly_progresses
+        next_month=next_month
     )
 
 # 面談記録追加
