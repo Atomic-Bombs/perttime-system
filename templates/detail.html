@@ -186,74 +186,150 @@
             </div>
 
             {% if monthly_progress %}
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 
-                    <!-- 月目標 -->
-                    <div class="bg-gray-50 rounded-lg p-4">
-                        <p class="text-sm text-gray-500">
-                            月目標
-                        </p>
-                        <p class="text-2xl font-bold">
-                            {{ monthly_progress.monthly_goal if monthly_progress.monthly_goal is not none else '-' }}
-                        </p>
+                <!-- 月間進捗カード -->
+                <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+
+                    <!-- ヘッダー -->
+                    <div class="px-6 py-4 border-b border-gray-100 bg-gray-50">
+                        <h3 class="text-lg font-bold text-gray-800">
+                            {{ selected_month[:4] }}年{{ selected_month[5:7]|int }}月の受講状況
+                        </h3>
                     </div>
 
-                    <!-- 現在の受講状況 -->
-                    <div class="bg-gray-50 rounded-lg p-4">
-                        <p class="text-sm text-gray-500">
-                            現在の受講状況
-                        </p>
-                        <p class="text-2xl font-bold">
-                            {{ monthly_progress.current_progress if monthly_progress.current_progress is not none else '-' }}
-                        </p>
-                    </div>
+                    <div class="p-6">
 
-                </div>
+                        <!-- 月目標・現在の受講状況 -->
+                        <div class="grid grid-cols-2 gap-4 mb-6">
 
-                <!-- 目標達成状況 -->
-                <div class="bg-gray-50 rounded-lg p-4 mt-4">
+                            <!-- 月目標 -->
+                            <div class="bg-gray-50 rounded-lg p-5 text-center">
+                                <p class="text-sm text-gray-500 mb-2">
+                                    月目標
+                                </p>
 
-                    <div class="flex items-center justify-between mb-2">
-                        <p class="text-sm text-gray-500">
-                            目標達成状況
-                        </p>
+                                <p class="text-3xl font-bold text-gray-800">
+                                    {{ monthly_progress.monthly_goal
+                                    if monthly_progress.monthly_goal is not none
+                                    else '-' }}
+                                </p>
+                            </div>
 
-                        {% if achievement_rate is not none %}
-                            <p class="text-2xl font-bold text-blue-700">
-                                {{ achievement_rate|round|int }}%
-                            </p>
-                        {% else %}
-                            <p class="text-2xl font-bold text-gray-400">
-                                -
-                            </p>
-                        {% endif %}
-                    </div>
+                            <!-- 現在の受講状況 -->
+                            <div class="bg-gray-50 rounded-lg p-5 text-center">
+                                <p class="text-sm text-gray-500 mb-2">
+                                    現在の受講状況
+                                </p>
 
-                    {% if achievement_rate is not none %}
+                                <p class="text-3xl font-bold text-gray-800">
+                                    {{ monthly_progress.current_progress
+                                    if monthly_progress.current_progress is not none
+                                    else '-' }}
+                                </p>
+                            </div>
 
-                        <!-- プログレスバー -->
-                        <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
-                            <div
-                                class="bg-blue-600 h-3 rounded-full transition-all duration-500"
-                                style="width: {{ achievement_rate if achievement_rate < 100 else 100 }}%;"
-                            ></div>
                         </div>
 
-                        <!-- 現在 / 目標 -->
-                        <p class="text-xs text-gray-500 mt-2 text-right">
-                            {{ monthly_progress.current_progress }}
-                            /
-                            {{ monthly_progress.monthly_goal }}
-                        </p>
 
-                    {% endif %}
+                        <!-- 目標達成率 -->
+                        <div>
+
+                            <div class="flex items-end justify-between mb-3">
+
+                                <div>
+                                    <p class="text-sm text-gray-500 mb-1">
+                                        目標達成率
+                                    </p>
+
+                                    {% if achievement_rate is not none %}
+
+                                        <p class="text-4xl font-bold text-blue-700">
+                                            {{ achievement_rate|round|int }}%
+                                        </p>
+
+                                    {% else %}
+
+                                        <p class="text-4xl font-bold text-gray-400">
+                                            -
+                                        </p>
+
+                                    {% endif %}
+                                </div>
+
+                                <!-- 100%以上の場合のみ表示 -->
+                                {% if achievement_rate is not none and achievement_rate >= 100 %}
+                                    <p class="text-sm font-bold text-green-600">
+                                        🎉 目標達成！
+                                    </p>
+                                {% endif %}
+
+                            </div>
+
+
+                            <!-- プログレスバー -->
+                            {% if achievement_rate is not none %}
+
+                                <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+
+                                    <div
+                                        class="bg-blue-600 h-3 rounded-full transition-all duration-500"
+                                        style="width: {{ achievement_rate if achievement_rate < 100 else 100 }}%;"
+                                    ></div>
+
+                                </div>
+
+
+                                <!-- 現在 / 目標 -->
+                                <div class="flex justify-between items-center mt-3">
+
+                                    <p class="text-sm text-gray-500">
+                                        {{ monthly_progress.current_progress }}
+                                        /
+                                        {{ monthly_progress.monthly_goal }}
+                                    </p>
+
+
+                                    <!-- あと○講 -->
+                                    {% if monthly_progress.monthly_goal is not none
+                                        and monthly_progress.current_progress is not none
+                                        and monthly_progress.current_progress < monthly_progress.monthly_goal %}
+
+                                        <p class="text-sm font-medium text-gray-600">
+                                            あと
+                                            <span class="font-bold text-gray-800">
+                                                {{ monthly_progress.monthly_goal - monthly_progress.current_progress }}
+                                            </span>
+                                            講で目標達成
+                                        </p>
+
+                                    {% elif monthly_progress.current_progress is not none
+                                        and monthly_progress.monthly_goal is not none
+                                        and monthly_progress.current_progress >= monthly_progress.monthly_goal %}
+
+                                        <p class="text-sm font-bold text-green-600">
+                                            目標を達成しています
+                                        </p>
+
+                                    {% endif %}
+
+                                </div>
+
+                            {% endif %}
+
+                        </div>
+
+                    </div>
 
                 </div>
 
             {% else %}
-                <div class="text-center text-gray-500 py-6">
-                    この月の受講状況はまだ登録されていません。
+
+                <div class="bg-white rounded-xl border border-gray-200 shadow-sm">
+                    <div class="text-center text-gray-500 py-8">
+                        この月の受講状況はまだ登録されていません。
+                    </div>
                 </div>
+
             {% endif %}
         </div>
 
