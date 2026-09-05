@@ -66,9 +66,62 @@
 
                     <div>
                         <label class="block text-sm text-gray-600 mb-1">次回面談時間</label>
-                        <input type="time" name="next_meeting_time" required
+
+                        <div class="flex items-center gap-2">
+
+                            <!-- 時 -->
+                            <select
+                                id="next_meeting_hour"
+                                class="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            >
+                                <option value="">--</option>
+
+                                {% for hour in range(9, 22) %}
+                                <option value="{{ '%02d'|format(hour) }}"
+                                    {% if form_data.get('next_meeting_time', '')[:2] == '%02d'|format(hour) %}
+                                        selected
+                                    {% endif %}
+                                >
+                                    {{ '%02d'|format(hour) }}
+                                </option>
+                                {% endfor %}
+                            </select>
+
+                            <span class="text-lg font-semibold text-gray-600">:</span>
+
+                            <!-- 分 -->
+                            <select
+                                id="next_meeting_minute"
+                                class="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            >
+                                <option value="">--</option>
+
+                                <option value="00"
+                                    {% if form_data.get('next_meeting_time', '')[3:5] == '00' %}
+                                        selected
+                                    {% endif %}
+                                >
+                                    00
+                                </option>
+
+                                <option value="30"
+                                    {% if form_data.get('next_meeting_time', '')[3:5] == '30' %}
+                                        selected
+                                    {% endif %}
+                                >
+                                    30
+                                </option>
+                            </select>
+
+                        </div>
+
+                        <!-- Flaskに送信する実際の値 -->
+                        <input
+                            type="hidden"
+                            name="next_meeting_time"
+                            id="next_meeting_time"
                             value="{{ form_data.get('next_meeting_time', '') }}"
-                            class="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        >
                     </div>
                     
                     <div>
@@ -125,6 +178,20 @@
         }
         updateTimer();
         const intervalId = setInterval(updateTimer, 1000);
+        const hourSelect = document.getElementById('next_meeting_hour');
+        const minuteSelect = document.getElementById('next_meeting_minute');
+        const timeInput = document.getElementById('next_meeting_time');
+
+        function updateMeetingTime() {
+            if (hourSelect.value && minuteSelect.value) {
+                timeInput.value = hourSelect.value + ':' + minuteSelect.value;
+            } else {
+                timeInput.value = '';
+            }
+        }
+
+        hourSelect.addEventListener('change', updateMeetingTime);
+        minuteSelect.addEventListener('change', updateMeetingTime);
     </script>
 </body>
 </html>
